@@ -50,11 +50,15 @@ app.set('views', path.join(__dirname, 'views'))
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')))
-app.use(mongoSanitize())
+app.use(mongoSanitize({
+    replaceWith: '_'
+}))
+
+const secret = process.env.SECRET || 'thisshoudlbeabettersecret!';
 
 const store = new MongoDBStore({
     url: dbUrl,
-    secret: 'thisshoudlbeabettersecret!',
+    secret,
     touchAfter: 24 * 60 * 60
 })
 
@@ -65,7 +69,7 @@ store.on("error", function (e) {
 const sessionConfig = {
     store,
     name: 'session',
-    secret: 'thisshouldbeabettersecret!',
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
